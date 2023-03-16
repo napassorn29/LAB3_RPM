@@ -55,9 +55,12 @@ float MotorReadRPM;
 float ratioOfGearbox;
 uint32_t MotorSetDuty = 50;
 float MotorSetRPM;
-
-float Kp;
-float error;
+int MotorControlEnable = 0;
+float x1;
+float x2;
+float x3;
+int duty;
+//int j = 0;
 //float P;
 
 /* USER CODE END PV */
@@ -72,6 +75,7 @@ static void MX_TIM1_Init(void);
 /* USER CODE BEGIN PFP */
 
 float IC_Calc_Period();
+void MotorSET();
 
 /* USER CODE END PFP */
 
@@ -136,9 +140,15 @@ int main(void)
 		  timestamp = HAL_GetTick()+500;
 		  averageRisingedgePeriod = IC_Calc_Period();
 		  MotorRPM();
-		  MotorSET();
-
-		  __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1,MotorSetDuty);
+		  if(MotorControlEnable == 1)
+		  {
+			  MotorSET();
+			  __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1,duty);
+		  }
+		  if(MotorControlEnable == 0)
+		  {
+			  __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1,MotorSetDuty);
+		  }
 	  }
 
   }
@@ -437,12 +447,10 @@ void MotorRPM()
 
 void MotorSET()
 {
-//	error = MotorSetRPM - MotorReadRPM;
-	error = (0.4101*MotorSetDuty)-2.472;
-	Kp = (-0.0018*MotorSetDuty*MotorSetDuty)+error;
-
-	MotorSetDuty = MotorSetRPM
-
+	x3 = (0.0214*MotorSetRPM*MotorSetRPM*MotorSetRPM);
+	x2 = (0.4756*MotorSetRPM*MotorSetRPM);
+	x1 = (5.6104*MotorSetRPM);
+	duty = x3-x2+x1+5.2076;
 }
 /* USER CODE END 4 */
 
