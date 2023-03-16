@@ -51,8 +51,14 @@ UART_HandleTypeDef huart2;
 
 uint32_t InputCaptureBuffer[IC_BUFFER_SIZE];
 float averageRisingedgePeriod;
+float MotorReadRPM;
+float ratioOfGearbox;
+uint32_t MotorSetDuty = 50;
+float MotorSetRPM;
 
-uint32_t duty = 50;
+float Kp;
+float error;
+//float P;
 
 /* USER CODE END PV */
 
@@ -129,8 +135,10 @@ int main(void)
 	  {
 		  timestamp = HAL_GetTick()+500;
 		  averageRisingedgePeriod = IC_Calc_Period();
+		  MotorRPM();
+		  MotorSET();
 
-		  __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1,duty);
+		  __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1,MotorSetDuty);
 	  }
 
   }
@@ -421,6 +429,21 @@ float IC_Calc_Period()
 	return sumdiff / 5.0;
 }
 
+void MotorRPM()
+{
+	ratioOfGearbox = (12*64*averageRisingedgePeriod);
+	MotorReadRPM = (1000000*60)/ratioOfGearbox;
+}
+
+void MotorSET()
+{
+//	error = MotorSetRPM - MotorReadRPM;
+	error = (0.4101*MotorSetDuty)-2.472;
+	Kp = (-0.0018*MotorSetDuty*MotorSetDuty)+error;
+
+	MotorSetDuty = MotorSetRPM
+
+}
 /* USER CODE END 4 */
 
 /**
