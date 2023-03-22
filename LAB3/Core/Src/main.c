@@ -76,6 +76,7 @@ static void MX_TIM1_Init(void);
 
 float IC_Calc_Period();
 void MotorSET();
+void MotorRPM();
 
 /* USER CODE END PFP */
 
